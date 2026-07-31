@@ -41,39 +41,11 @@
 
 - **用量统计是估算值**：DeepSeek 官方没有开放"用量查询" API，历史趋势只能通过应用运行期间的余额快照推算消耗，不代表官方统计口径。
 - **采样依赖应用活跃**：只有 App 在前台（或进程存活）时才会记录余额快照；长时间不打开，趋势曲线会有空洞。
-- **Complication 更新周期约 30 分钟**：表盘小部件由系统按周期调度，不是秒级刷新。
-- **低余额提醒仅振动**：没有通知横幅，因为 Wear OS 的通知需要额外权限与用户授权，第一版从简。
+- **Complication 更新周期约 10 分钟**：表盘小部件由系统按周期调度（App 刷新时会主动推送，但不是秒级刷新）。
+- **低余额提醒依赖通知权限**：需要用户首次启动时授权通知权限（Wear OS 5 要求），未授权则只有震动。
 - **自动刷新耗电**：1 分钟间隔在后台持续轮询会消耗手表电量，建议日常使用 5 分钟档位。
 - **API Key 明文存储**：Key 保存在应用私有 DataStore 中（仅本应用可读），未做加密。建议使用专用监控 Key，而非主账户 Key。
 - **未经应用商店审核**：目前以侧载（adb 安装）方式分发，未上架 Galaxy Store / Play Store。
-
-## 🏗 构建
-
-```bash
-# 环境要求：JDK 17、Android SDK（platform 35）
-git clone https://github.com/Honokanya/DeepSeekWatch.git
-cd DeepSeekWatch
-./gradlew :app:assembleDebug
-# 产物：app/build/outputs/apk/debug/app-debug.apk
-```
-
-真机安装（无线调试）：
-
-```bash
-adb pair <手表IP>:<配对端口>          # 输入手表上显示的配对码
-adb connect <手表IP>:<调试端口>
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
-
-首次使用：设置 → 扫码导入 Key → 手机扫码粘贴 API Key。
-
-## 🧪 测试
-
-```bash
-./gradlew :app:testDebugUnitTest
-```
-
-单元测试覆盖：余额 API 解析、401 错误处理、网络异常路径（MockWebServer）。
 
 ## 📄 许可
 
