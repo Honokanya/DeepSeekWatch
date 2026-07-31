@@ -11,6 +11,8 @@ import com.honoka.deepseekwatch.data.BalanceRepository
 import com.honoka.deepseekwatch.data.BalanceResponse
 import com.honoka.deepseekwatch.data.BalanceSnapshot
 import com.honoka.deepseekwatch.data.DeepSeekApiException
+import com.honoka.deepseekwatch.util.ComplicationSync
+import com.honoka.deepseekwatch.util.LowBalanceNotifier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,13 +91,14 @@ class BalanceViewModel(app: Application) : AndroidViewModel(app) {
             val resp = if (fakeSuccessEnabled) {
                 BalanceResponse(
                     isAvailable = true,
-                    balanceInfos = listOf(BalanceInfo("CNY", "10.06", "0.00", "10.06"))
+                    balanceInfos = listOf(BalanceInfo("CNY", "3.00", "0.00", "3.00"))
                 )
             } else {
                 repository.fetchBalance(key)
             }
             repository.recordSnapshot(key)
             checkLowBalance(resp)
+            ComplicationSync.pushUpdate(getApplication())
             BalanceUiState.Success(resp, System.currentTimeMillis())
         } catch (e: DeepSeekApiException) {
             if (e.code == 401) BalanceUiState.Error("API Key 无效或已过期 (401)")
@@ -109,9 +112,7 @@ class BalanceViewModel(app: Application) : AndroidViewModel(app) {
         if (threshold <= 0) return
         val total = resp.balanceInfos.firstOrNull()?.totalBalance?.toDoubleOrNull() ?: return
         if (total < threshold) {
-            val vibrator = getApplication<Application>()
-                .getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-            vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 250, 120, 250), -1))
+            LowBalanceNotifier.notify(getApplication(), total, threshold)
         }
     }
 }

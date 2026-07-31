@@ -13,14 +13,17 @@ android {
         applicationId = "com.honoka.deepseekwatch"
         minSdk = 30
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // 用 debug keystore 签名，方便直接侧载安装（无需正式签名）
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -44,7 +47,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("com.google.android.wearable:wearable:2.9.0")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    compileOnly("com.google.android.wearable:wearable:2.9.0")
     implementation("androidx.wear:wear-complications-provider:1.0.0-alpha17")
     implementation("androidx.wear:wear-complications-data:1.0.0-alpha22")
     implementation("org.nanohttpd:nanohttpd:2.3.1")

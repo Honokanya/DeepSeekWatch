@@ -2,6 +2,7 @@ package com.honoka.deepseekwatch.data
 
 import android.content.Context
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 class BalanceRepository(context: Context) {
 
@@ -17,6 +18,7 @@ class BalanceRepository(context: Context) {
     val refreshIntervalMs: Flow<Long> = settingsStore.refreshIntervalMs
 
     suspend fun currentApiKeyValue(): String = keyStore.currentApiKeyValue()
+    suspend fun lowBalanceThresholdValue(): Double = settingsStore.lowBalanceThreshold.first()
     suspend fun fetchBalance(key: String): BalanceResponse = api.fetchBalance(key)
     suspend fun saveKey(entry: ApiKeyEntry, makeCurrent: Boolean = true) = keyStore.save(entry, makeCurrent)
     suspend fun removeKey(name: String) = keyStore.remove(name)
